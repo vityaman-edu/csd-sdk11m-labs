@@ -10,7 +10,7 @@
 
 class Application {
 public:
-	void OnUpdate();
+  void OnUpdate();
 };
 
 #endif /* INC_APPLICATION_HPP_ */

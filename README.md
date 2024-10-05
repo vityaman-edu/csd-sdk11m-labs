@@ -16,4 +16,5 @@ Labs made during Computer Systems Design course.
 
 ## Documentation
 
+- [Developer Guide](./doc/developer.md)
 - [Lab Guide](./doc/SDK-1.1M_24091001.pdf)
