@@ -1,7 +1,11 @@
 # STM32CubeIDE
 Debug/
-compile_commands.json
+
+# Clang
 .cache
+compile_commands.json
+lab/*/project/.clang-format
+lab/*/project/.clangd
 
 # Python
 .mypy_cache/
