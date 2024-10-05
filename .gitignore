@@ -3,3 +3,5 @@ Debug/
 compile_commands.json
 .cache
 
+# Python
+.mypy_cache/
