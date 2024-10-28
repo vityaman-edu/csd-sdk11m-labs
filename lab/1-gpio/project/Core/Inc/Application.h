@@ -14,6 +14,8 @@ extern "C" {
 
 typedef void* application_ptr_t;
 
+application_ptr_t ApplicationSingleton();
+
 void OnUpdate(application_ptr_t application);
 
 #ifdef __cplusplus

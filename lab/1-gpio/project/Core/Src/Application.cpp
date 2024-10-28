@@ -11,11 +11,17 @@
 #include "stm32f427xx.h"
 #include "stm32f4xx_hal.h"
 
+Application application;
+
 void Application::OnUpdate() {
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
   HAL_Delay(2500);
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
   HAL_Delay(500);
+}
+
+application_ptr_t ApplicationSingleton() {
+  return &application;
 }
 
 void OnUpdate(application_ptr_t self) {

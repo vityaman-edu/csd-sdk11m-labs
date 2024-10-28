@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "Application.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -63,7 +64,7 @@ static void MX_GPIO_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-  application_ptr_t application = NULL;
+  application_ptr_t application = ApplicationSingleton();
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
