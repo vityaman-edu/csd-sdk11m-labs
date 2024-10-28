@@ -8,7 +8,7 @@
 #ifndef INC_APPLICATION_HPP_
 #define INC_APPLICATION_HPP_
 
-class Application {
+class Application final {
 public:
   void OnUpdate();
 };
