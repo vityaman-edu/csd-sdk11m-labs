@@ -25,7 +25,7 @@ if __name__ == '__main__':
     project_dir = Path(args.project_dir).absolute()
     install_dir = Path(args.install_dir).absolute()
 
-    compiler = 'clang++'
+    compiler = 'clang'
 
     plugin_dir = Path(
         install_dir, 'stm32cubeide_1.9.0', 'plugins', 
@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     cxx_flags = ' '.join(f'-I{_}' for _ in includes)
 
-    sources = Path(project_dir, 'Core', 'Src').rglob('*.cpp')
+    sources = Path(project_dir, 'Core', 'Src').rglob('*.c')
 
     compile_commands: list[dict[str, str]] = []
     for source in sources:

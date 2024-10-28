@@ -54,7 +54,25 @@ static void MX_GPIO_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+typedef enum {
+  GREEN = GPIO_PIN_13,
+  YELLOW = GPIO_PIN_14,
+  RED = GPIO_PIN_15,
+} Color;
 
+typedef enum {
+  ON = GPIO_PIN_SET,
+  OFF = GPIO_PIN_RESET,
+} LightState;
+
+static void light(Color color, LightState state) {
+  HAL_GPIO_WritePin(GPIOD, color, state);
+}
+
+typedef enum {
+  PRESSED = 0,
+  UNPRESSED = 1,
+} ButtonState;
 /* USER CODE END 0 */
 
 /**
@@ -91,8 +109,18 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint32_t anim_next_tick = 1;
-  coroutine_create(anim, animation, .overflows = 5);
+
+  uint32_t count = 0;
+
+  ButtonState last_state = UNPRESSED;
+  uint32_t last_pressed_tick = 0;
+
+  const uint32_t short_debounce_delay = 500;
+  const uint32_t long_debounce_delay = 2000;
+
+  uint32_t anim_next_tick = 0;
+  coroutine_create(anim, animation,);
+
   for (;;) {
 	uint32_t tick = HAL_GetTick();
 	if (anim_next_tick != 0 && anim_next_tick < tick) {
@@ -103,12 +131,41 @@ int main(void)
 	  }
 	}
 
-	{
-	  uint32_t is_pressed = !HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_15);
-	  if (is_pressed) {
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
-		  HAL_Delay(250);
-		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
+	if (anim_next_tick == 0) {
+      int lhs = count % 2 == 1;
+      int rhs = count / 2 % 2 == 1;
+
+      if (lhs) {
+    	light(YELLOW, ON);
+      } else {
+    	light(YELLOW, OFF);
+      }
+
+      if (rhs) {
+    	light(GREEN, ON);
+      } else {
+    	light(GREEN, OFF);
+      }
+	}
+
+	ButtonState state = (!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_15)) ? PRESSED : UNPRESSED;
+	if (state != last_state) {
+	  last_pressed_tick = HAL_GetTick();
+	}
+
+	if (HAL_GetTick() - last_pressed_tick > long_debounce_delay) {
+	  if (count != 0) {
+	    count -= 1;
+	  }
+	  if (count % 4 == 0) {
+	    anim_next_tick = 1;
+		anim.overflows = count / 4;
+	  }
+	} else if (HAL_GetTick() - last_pressed_tick > short_debounce_delay) {
+	  count += 1;
+	  if (count % 4 == 0) {
+		anim_next_tick = 1;
+		anim.overflows = count / 4;
 	  }
 	}
 
