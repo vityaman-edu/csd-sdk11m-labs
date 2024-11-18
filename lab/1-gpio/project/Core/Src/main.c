@@ -26,9 +26,9 @@
 #include "count2.h"
 #include "debounce.h"
 
-
 #include "stm32f427xx.h"
 #include "stm32f4xx_hal.h"
+#include "sys/_intsup.h"
 
 #include <limits.h>
 #include <stdbool.h>
@@ -115,26 +115,39 @@ int main(void) {
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   count2_t count;
   count2_init(&count);
 
   coroutine(debounce) debouncing = coroutine_create(debounce, );
 
+  unsigned int animating_tick = UINT_MAX;
+  coroutine(animation) animating;
+
   for (;;) {
-    enum debounce_state_t state = coroutine_next(debouncing);
-    switch (state) {
-    case DEBOUNCE_SHORT_CLIKED: {
-      count2_add(&count);
-    } break;
-    case DEBOUNCE_LONG_CLIKED: {
-      count2_sub(&count);
-    } break;
-    case DEBOUNCE_NOT_CLIKED: {
-      // Do nothing
-    } break;
+    unsigned int tick = HAL_GetTick();
+
+    const bool is_animating = (animating_tick != UINT_MAX);
+    bool is_overflowed = false;
+
+    if (!is_animating) {
+      enum debounce_state_t state = coroutine_next(debouncing);
+      switch (state) {
+      case DEBOUNCE_SHORT_CLIKED: {
+        count2_add(&count);
+        is_overflowed = (count2_value(&count) == 0);
+      } break;
+      case DEBOUNCE_LONG_CLIKED: {
+        count2_sub(&count);
+        is_overflowed = (count2_value(&count) == 3);
+      } break;
+      case DEBOUNCE_NOT_CLIKED: {
+        // Do nothing
+      } break;
+      }
     }
 
-    {
+    if (!is_animating) {
       if (count2_bit(&count, 0)) {
         light(GREEN, ON);
       } else {
@@ -145,6 +158,19 @@ int main(void) {
         light(YELLOW, ON);
       } else {
         light(YELLOW, OFF);
+      }
+    }
+
+    if (is_overflowed) {
+      animating = coroutine_create(animation, count2_overflows(&count));
+    }
+
+    if (is_overflowed || (is_animating && animating_tick < tick)) { // ABA?
+      const unsigned int delay = coroutine_next(animating);
+      if (delay == 0) {
+        animating_tick = UINT_MAX;
+      } else {
+        animating_tick = tick + delay;
       }
     }
 
