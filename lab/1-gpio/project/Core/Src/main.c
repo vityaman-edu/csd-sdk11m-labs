@@ -23,9 +23,12 @@
 /* USER CODE BEGIN Includes */
 #include "animation.h"
 #include "coroutine.h"
+#include "debounce.h"
 
 #include "stm32f427xx.h"
 
+#include <limits.h>
+#include <stdbool.h>
 #include <stdint.h>
 /* USER CODE END Includes */
 
@@ -73,10 +76,6 @@ static void light(Color color, LightState state) {
   HAL_GPIO_WritePin(GPIOD, color, state);
 }
 
-typedef enum {
-  PRESSED = 0,
-  UNPRESSED = 1,
-} ButtonState;
 /* USER CODE END 0 */
 
 /**
@@ -113,66 +112,26 @@ int main(void) {
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  coroutine(debounce) debouncing = coroutine_create(debounce, );
 
-  int count = 0;
-
-  ButtonState last_state = UNPRESSED;
-  int last_switched_tick = 0;
-
-  const int short_debounce_delay = 500;
-  const int long_debounce_delay = 2000;
-
-  int anim_next_tick = 0;
-  coroutine(animation) anim = coroutine_create(animation, );
+  bool is_green = false;
+  bool is_yellow = false;
 
   for (;;) {
-    int tick = HAL_GetTick();
-
-    if (anim_next_tick != 0 && anim_next_tick < tick) {
-      int delay = coroutine_next(anim);
-      anim_next_tick = tick + delay + HAL_GetTickFreq();
-      if (delay == 0) {
-        anim = coroutine_create(animation, );
-      }
-    }
-
-    if (anim_next_tick == 0) {
-      int lhs = count % 2 == 1;
-      int rhs = count / 2 % 2 == 1;
-
-      if (lhs) {
-        light(YELLOW, ON);
-      } else {
-        light(YELLOW, OFF);
-      }
-
-      if (rhs) {
+    enum debounce_state_t state = coroutine_next(debouncing);
+    if (state == DEBOUNCE_SHORT_CLIKED) {
+      is_green = !is_green;
+      if (is_green) {
         light(GREEN, ON);
       } else {
         light(GREEN, OFF);
       }
-    }
-
-    ButtonState state =
-        (!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_15)) ? PRESSED : UNPRESSED;
-    if (state != last_state) {
-      last_state = state;
-      last_switched_tick = tick;
-    }
-
-    if (tick - last_switched_tick > long_debounce_delay) {
-      if (count != 0) {
-        count -= 1;
-      }
-      if (count % 4 == 0) {
-        anim_next_tick = 1;
-        anim.overflows = count / 4;
-      }
-    } else if (tick - last_switched_tick > short_debounce_delay) {
-      count += 1;
-      if (count % 4 == 0) {
-        anim_next_tick = 1;
-        anim.overflows = count / 4;
+    } else if (state == DEBOUNCE_LONG_CLIKED) {
+      is_yellow = !is_yellow;
+      if (is_yellow) {
+        light(YELLOW, ON);
+      } else {
+        light(YELLOW, OFF);
       }
     }
 

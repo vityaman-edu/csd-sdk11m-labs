@@ -21,26 +21,26 @@
 
 #define coroutine_yield(val)                                                   \
   self->label = __LINE__;                                                      \
-  self->yield = val;                                                           \
-  goto yield;                                                                  \
+  self->_yield = val;                                                           \
+  goto state_yield;                                                            \
   case __LINE__:
 
 #define coroutine_finish(val, ...)                                             \
   default:                                                                     \
     self->label = -1;                                                          \
-    self->yield = val;                                                         \
-    goto yield;                                                                \
+    self->_yield = val;                                                         \
+    goto state_yield;                                                                \
     }                                                                          \
-  yield:                                                                       \
+  state_yield:                                                                       \
     FOR_EACH(coroutine_store, __VA_ARGS__)                                     \
-    return self->yield;
+    return self->_yield;
 
 #define coroutine_declare(yield_type, name, ...)                               \
   struct coroutine_##name {                                                    \
     int label;                                                                 \
     __VA_ARGS__;                                                               \
     yield_type (*procedure)(struct coroutine_##name * self);                   \
-    yield_type yield;                                                          \
+    yield_type _yield;                                                          \
   };                                                                           \
                                                                                \
   yield_type name(struct coroutine_##name *self)
