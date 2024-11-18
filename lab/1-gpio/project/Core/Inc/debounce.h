@@ -21,8 +21,10 @@ enum debounce_state_t {
 
 typedef bool (*debounce_is_pressed_t)();
 
+typedef uint32_t (*debounce_now_t)();
+
 coroutine_declare(enum debounce_state_t, debounce,
                   debounce_is_pressed_t is_pressed;
-                  int64_t pressed_ticks);
+                  debounce_now_t now; uint32_t pressed_ticks);
 
 #endif /* INC_DEBOUNCE_H_ */

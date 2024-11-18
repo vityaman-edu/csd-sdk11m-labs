@@ -81,6 +81,8 @@ static void light(Color color, LightState state) {
 
 bool is_pressed() { return !HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_15); }
 
+long unsigned int now() { return HAL_GetTick(); }
+
 /* USER CODE END 0 */
 
 /**
@@ -121,7 +123,7 @@ int main(void) {
   count2_t count;
   count2_init(&count);
 
-  coroutine(debounce) debouncing = coroutine_create(debounce, is_pressed);
+  coroutine(debounce) debouncing = coroutine_create(debounce, is_pressed, now);
 
   unsigned int animating_tick = UINT_MAX;
   coroutine(animation) animating;
