@@ -27,9 +27,9 @@ coroutine_define(enum debounce_state_t, debounce) {
     enum debounce_state_t state = DEBOUNCE_NOT_CLIKED;
 
     if (!now_pressed && was_pressed) {
-      if (pressed_ticks > 40000) {
+      if (pressed_ticks > 20000) {
         state = DEBOUNCE_LONG_CLIKED;
-      } else if (pressed_ticks > 5000) {
+      } else if (pressed_ticks > 2000) {
         state = DEBOUNCE_SHORT_CLIKED;
       }
     }

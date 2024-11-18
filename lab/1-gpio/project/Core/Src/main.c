@@ -23,9 +23,12 @@
 /* USER CODE BEGIN Includes */
 #include "animation.h"
 #include "coroutine.h"
+#include "count2.h"
 #include "debounce.h"
 
+
 #include "stm32f427xx.h"
+#include "stm32f4xx_hal.h"
 
 #include <limits.h>
 #include <stdbool.h>
@@ -112,23 +115,33 @@ int main(void) {
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  coroutine(debounce) debouncing = coroutine_create(debounce, );
+  count2_t count;
+  count2_init(&count);
 
-  bool is_green = false;
-  bool is_yellow = false;
+  coroutine(debounce) debouncing = coroutine_create(debounce, );
 
   for (;;) {
     enum debounce_state_t state = coroutine_next(debouncing);
-    if (state == DEBOUNCE_SHORT_CLIKED) {
-      is_green = !is_green;
-      if (is_green) {
+    switch (state) {
+    case DEBOUNCE_SHORT_CLIKED: {
+      count2_add(&count);
+    } break;
+    case DEBOUNCE_LONG_CLIKED: {
+      count2_sub(&count);
+    } break;
+    case DEBOUNCE_NOT_CLIKED: {
+      // Do nothing
+    } break;
+    }
+
+    {
+      if (count2_bit(&count, 0)) {
         light(GREEN, ON);
       } else {
         light(GREEN, OFF);
       }
-    } else if (state == DEBOUNCE_LONG_CLIKED) {
-      is_yellow = !is_yellow;
-      if (is_yellow) {
+
+      if (count2_bit(&count, 1)) {
         light(YELLOW, ON);
       } else {
         light(YELLOW, OFF);
