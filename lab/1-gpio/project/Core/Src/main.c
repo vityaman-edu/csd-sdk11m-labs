@@ -130,8 +130,8 @@ int main(void) {
     const bool is_animating = (animating_tick != UINT_MAX);
     bool is_overflowed = false;
 
+    enum debounce_state_t state = coroutine_next(debouncing);
     if (!is_animating) {
-      enum debounce_state_t state = coroutine_next(debouncing);
       switch (state) {
       case DEBOUNCE_SHORT_CLIKED: {
         count2_add(&count);
