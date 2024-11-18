@@ -117,21 +117,22 @@ int main(void) {
   int count = 0;
 
   ButtonState last_state = UNPRESSED;
-  int last_pressed_tick = 0;
+  int last_switched_tick = 0;
 
   const int short_debounce_delay = 500;
   const int long_debounce_delay = 2000;
 
   int anim_next_tick = 0;
-  coroutine_create(anim, animation, );
+  coroutine(animation) anim = coroutine_create(animation, );
 
   for (;;) {
     int tick = HAL_GetTick();
+
     if (anim_next_tick != 0 && anim_next_tick < tick) {
       int delay = coroutine_next(anim);
       anim_next_tick = tick + delay + HAL_GetTickFreq();
       if (delay == 0) {
-        anim_next_tick = 0;
+        anim = coroutine_create(animation, );
       }
     }
 
@@ -155,10 +156,11 @@ int main(void) {
     ButtonState state =
         (!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_15)) ? PRESSED : UNPRESSED;
     if (state != last_state) {
-      last_pressed_tick = HAL_GetTick();
+      last_state = state;
+      last_switched_tick = tick;
     }
 
-    if (HAL_GetTick() - last_pressed_tick > long_debounce_delay) {
+    if (tick - last_switched_tick > long_debounce_delay) {
       if (count != 0) {
         count -= 1;
       }
@@ -166,7 +168,7 @@ int main(void) {
         anim_next_tick = 1;
         anim.overflows = count / 4;
       }
-    } else if (HAL_GetTick() - last_pressed_tick > short_debounce_delay) {
+    } else if (tick - last_switched_tick > short_debounce_delay) {
       count += 1;
       if (count % 4 == 0) {
         anim_next_tick = 1;
@@ -180,6 +182,7 @@ int main(void) {
   }
 
   for (;;) {
+    // Do nothing
   }
   /* USER CODE END 3 */
 }
