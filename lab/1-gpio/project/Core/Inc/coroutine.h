@@ -52,7 +52,7 @@
 
 #define coroutine_create(name, ...)                                            \
   (struct coroutine_##name) { /* label = */                                    \
-    0 /* procedure = */ & name, /* _yield */ 0, __VA_ARGS__                                 \
+    0, /* procedure = */ &name, /* _yield */ 0, __VA_ARGS__                    \
   }
 
 #define coroutine_next(instance) (instance.procedure)(&instance)

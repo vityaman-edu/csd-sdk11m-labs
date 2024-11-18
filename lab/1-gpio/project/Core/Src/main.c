@@ -163,6 +163,8 @@ int main(void) {
 
     if (is_overflowed) {
       animating = coroutine_create(animation, count2_overflows(&count));
+      light(GREEN, OFF);
+      light(YELLOW, OFF);
     }
 
     if (is_overflowed || (is_animating && animating_tick < tick)) { // ABA?

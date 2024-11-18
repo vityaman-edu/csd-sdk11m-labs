@@ -13,7 +13,7 @@ void count2_init(count2_t *self) { self->value = 0; }
 void count2_add(count2_t *self) { self->value += 1; }
 
 void count2_sub(count2_t *self) {
-  if (count2_value(self) == 0) {
+  if (self->value == 0) {
     return;
   }
   self->value -= 1;
