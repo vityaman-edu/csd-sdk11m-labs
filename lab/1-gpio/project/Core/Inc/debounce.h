@@ -10,6 +10,7 @@
 
 #include "coroutine.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 
 enum debounce_state_t {
@@ -18,6 +19,10 @@ enum debounce_state_t {
   DEBOUNCE_LONG_CLIKED,
 };
 
-coroutine_declare(enum debounce_state_t, debounce, int64_t pressed_ticks);
+typedef bool (*debounce_is_pressed_t)();
+
+coroutine_declare(enum debounce_state_t, debounce,
+                  debounce_is_pressed_t is_pressed;
+                  int64_t pressed_ticks);
 
 #endif /* INC_DEBOUNCE_H_ */

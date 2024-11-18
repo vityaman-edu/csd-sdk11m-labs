@@ -8,28 +8,27 @@
 
 #include "coroutine.h"
 
-#include "stm32f427xx.h"
-#include "stm32f4xx_hal.h"
-
 #include <stdbool.h>
 
-bool is_pressed() { return !HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_15); }
+enum {
+  DEBOUNCE_SHORT_CLICK_DELAY = 2000,
+  DEBOUNCE_LONG_CLICK_DELAY = 20000,
+};
 
 coroutine_define(enum debounce_state_t, debounce) {
-  coroutine_start(pressed_ticks);
+  coroutine_start(is_pressed, pressed_ticks);
 
   pressed_ticks = 0;
 
   for (;;) {
-    bool was_pressed = pressed_ticks != 0;
-    bool now_pressed = is_pressed();
+    const bool was_pressed = pressed_ticks != 0;
+    const bool now_pressed = is_pressed();
 
     enum debounce_state_t state = DEBOUNCE_NOT_CLIKED;
-
     if (!now_pressed && was_pressed) {
-      if (pressed_ticks > 20000) {
+      if (pressed_ticks > DEBOUNCE_LONG_CLICK_DELAY) {
         state = DEBOUNCE_LONG_CLIKED;
-      } else if (pressed_ticks > 2000) {
+      } else if (pressed_ticks > DEBOUNCE_SHORT_CLICK_DELAY) {
         state = DEBOUNCE_SHORT_CLIKED;
       }
     }
