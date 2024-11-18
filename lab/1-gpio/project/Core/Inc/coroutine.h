@@ -52,6 +52,6 @@
     .label = 0, .procedure = &name, __VA_ARGS__                  \
   }
 
-#define coroutine_next(instance) instance.procedure(&instance)
+#define coroutine_next(instance) (instance.procedure)(&instance)
 
 #endif /* INC_COROUTINE_H_ */

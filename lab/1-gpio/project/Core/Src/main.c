@@ -114,21 +114,21 @@ int main(void) {
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  uint32_t count = 0;
+  int count = 0;
 
   ButtonState last_state = UNPRESSED;
-  uint32_t last_pressed_tick = 0;
+  int last_pressed_tick = 0;
 
-  const uint32_t short_debounce_delay = 500;
-  const uint32_t long_debounce_delay = 2000;
+  const int short_debounce_delay = 500;
+  const int long_debounce_delay = 2000;
 
-  uint32_t anim_next_tick = 0;
+  int anim_next_tick = 0;
   coroutine_create(anim, animation, );
 
   for (;;) {
-    uint32_t tick = HAL_GetTick();
+    int tick = HAL_GetTick();
     if (anim_next_tick != 0 && anim_next_tick < tick) {
-      uint32_t delay = coroutine_next(anim);
+      int delay = coroutine_next(anim);
       anim_next_tick = tick + delay + HAL_GetTickFreq();
       if (delay == 0) {
         anim_next_tick = 0;

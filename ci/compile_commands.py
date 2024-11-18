@@ -34,18 +34,20 @@ if __name__ == "__main__":
     install_dir = Path(args.install_dir).absolute()
     language = args.language
 
-    match language:
-        case "c":
-            compiler = "clang"
-        case "cpp":
-            compiler = "clang++"
-
     plugin_dir = Path(
         install_dir,
         "stm32cubeide_1.9.0",
         "plugins",
         "com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.10.3-2021.10.linux64_1.0.0.202111181127",
     )
+
+    match language:
+        case "c":
+            compiler_bin = "arm-none-eabi-gcc"
+        case "cpp":
+            compiler_bin = "arm-none-eabi-g++"
+    
+    compiler = Path(plugin_dir, "tools", "bin", compiler_bin)
 
     includes = [
         Path("Core", "Inc"),
@@ -56,7 +58,7 @@ if __name__ == "__main__":
         Path(plugin_dir, "tools", "arm-none-eabi", "include"),
     ]
 
-    if compiler == "clang++":
+    if compiler_bin == "clang++":
         includes += [
             Path(plugin_dir, "tools", "arm-none-eabi", "include", "c++", "10.3.1"),
         ]
@@ -64,7 +66,7 @@ if __name__ == "__main__":
     flags = " ".join(f"-I{_}" for _ in includes)
 
     sources = Path(project_dir, "Core", "Src").rglob(
-        "*.cpp" if compiler == "clang++" else "*.c",
+        "*.cpp" if compiler_bin == "clang++" else "*.c",
     )
 
     compile_commands: list[dict[str, str]] = []
