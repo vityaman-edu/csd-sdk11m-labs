@@ -93,8 +93,20 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  char s[] = "Hello, World!\n";
+  char c = '\0';
   while (1)
   {
+	if (HAL_OK == HAL_UART_Receive(&huart6, (uint8_t*)(&c), sizeof(c), 1)) {
+	  switch (c) {
+	  case '!': {
+		HAL_UART_Transmit(&huart6, (uint8_t*)(s), sizeof(s), 10);
+	  } break;
+	  default: {
+		HAL_UART_Transmit(&huart6, (uint8_t*)(&c), sizeof(c), 10);
+	  } break;
+	  }
+	}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
